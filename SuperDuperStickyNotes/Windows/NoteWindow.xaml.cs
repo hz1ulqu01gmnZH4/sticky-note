@@ -147,7 +147,7 @@ namespace SuperDuperStickyNotes.Windows
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 2)
+            if (e.ClickCount == 2 && ContentRichTextBox != null)
             {
                 // Double-click to edit
                 ContentRichTextBox.Focus();
@@ -393,6 +393,9 @@ namespace SuperDuperStickyNotes.Windows
 
         private void ToggleBold()
         {
+            if (ContentRichTextBox == null)
+                return;
+
             if (!ContentRichTextBox.IsFocused)
                 ContentRichTextBox.Focus();
 
@@ -410,6 +413,9 @@ namespace SuperDuperStickyNotes.Windows
 
         private void ToggleItalic()
         {
+            if (ContentRichTextBox == null)
+                return;
+
             if (!ContentRichTextBox.IsFocused)
                 ContentRichTextBox.Focus();
 
@@ -427,6 +433,9 @@ namespace SuperDuperStickyNotes.Windows
 
         private void ToggleUnderline()
         {
+            if (ContentRichTextBox == null)
+                return;
+
             if (!ContentRichTextBox.IsFocused)
                 ContentRichTextBox.Focus();
 
@@ -446,6 +455,9 @@ namespace SuperDuperStickyNotes.Windows
 
         private void ToggleList(TextMarkerStyle markerStyle)
         {
+            if (ContentRichTextBox == null)
+                return;
+
             if (!ContentRichTextBox.IsFocused)
                 ContentRichTextBox.Focus();
 
@@ -511,6 +523,9 @@ namespace SuperDuperStickyNotes.Windows
 
         private void ApplyFontSize(double fontSize)
         {
+            if (ContentRichTextBox == null)
+                return;
+
             if (!ContentRichTextBox.IsFocused)
                 ContentRichTextBox.Focus();
 
