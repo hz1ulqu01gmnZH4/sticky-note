@@ -478,3 +478,6 @@ This document tracks the implementation status of the Super Duper Sticky Notes C
 - ✅ Fixed ArgumentException when toggling lists on/off repeatedly
   - Create new paragraph instances instead of reusing attached blocks
   - Prevents "already a child of the tree" errors
+- ✅ Fixed line order reversal when removing list formatting
+  - Lines now maintain correct order (A, B, C) instead of reversing (C, B, A)
+  - Insert paragraphs in reverse order to compensate for InsertBefore behavior
