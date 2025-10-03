@@ -472,3 +472,9 @@ This document tracks the implementation status of the Super Duper Sticky Notes C
 - ✅ Fixed InvalidOperationException when switching between bullet and numbered lists
   - Improved list conversion logic to change MarkerStyle instead of recreating lists
   - Now properly converts between list types without errors
+- ✅ Fixed list creation preserving all selected lines
+  - Multiple lines now create multiple list items (one per line)
+  - No longer loses first line when creating lists
+- ✅ Fixed ArgumentException when toggling lists on/off repeatedly
+  - Create new paragraph instances instead of reusing attached blocks
+  - Prevents "already a child of the tree" errors
