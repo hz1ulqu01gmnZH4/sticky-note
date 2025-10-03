@@ -464,3 +464,8 @@ This document tracks the implementation status of the Super Duper Sticky Notes C
 - ✅ User preferences saved to JSON (settings.json)
 - ✅ Configurable backup interval and retention policy
 - ✅ Background backup timer with automatic cleanup
+
+**Recent Bugfixes**:
+- ✅ Fixed null reference exception when double-clicking tray icon or using command palette
+  - Added null checks to all ContentRichTextBox access methods
+  - Prevents crash when window shown before fully loaded
