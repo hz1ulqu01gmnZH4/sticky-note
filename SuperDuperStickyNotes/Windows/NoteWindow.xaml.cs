@@ -465,52 +465,73 @@ namespace SuperDuperStickyNotes.Windows
             if (selection != null)
             {
                 var startParagraph = selection.Start.Paragraph;
-                var endParagraph = selection.End.Paragraph;
 
                 if (startParagraph != null)
                 {
                     // Check if we're already in a list
-                    var currentList = startParagraph.Parent as List;
-                    if (currentList != null)
+                    var listItem = startParagraph.Parent as ListItem;
+                    if (listItem != null)
                     {
-                        // Remove from list
-                        var items = new System.Collections.Generic.List<ListItem>();
-                        foreach (ListItem item in currentList.ListItems)
+                        var currentList = listItem.Parent as List;
+                        if (currentList != null)
                         {
-                            items.Add(item);
-                        }
-
-                        var blocks = new System.Collections.Generic.List<Block>();
-                        foreach (var item in items)
-                        {
-                            foreach (Block block in item.Blocks)
+                            // If same marker style, toggle off (remove list)
+                            if (currentList.MarkerStyle == markerStyle)
                             {
-                                blocks.Add(block);
+                                // Remove from list - convert back to paragraph
+                                var doc = ContentRichTextBox.Document;
+                                var listIndex = doc.Blocks.ToList().IndexOf(currentList);
+
+                                // Extract all paragraphs from list items
+                                var paragraphs = new System.Collections.Generic.List<Paragraph>();
+                                foreach (ListItem item in currentList.ListItems)
+                                {
+                                    foreach (Block block in item.Blocks.ToList())
+                                    {
+                                        if (block is Paragraph para)
+                                        {
+                                            paragraphs.Add(para);
+                                        }
+                                    }
+                                }
+
+                                // Remove the list
+                                doc.Blocks.Remove(currentList);
+
+                                // Insert paragraphs at the same position
+                                if (listIndex >= 0 && listIndex <= doc.Blocks.Count)
+                                {
+                                    foreach (var para in paragraphs)
+                                    {
+                                        if (listIndex < doc.Blocks.Count)
+                                        {
+                                            doc.Blocks.InsertBefore(doc.Blocks.ElementAt(listIndex), para);
+                                        }
+                                        else
+                                        {
+                                            doc.Blocks.Add(para);
+                                        }
+                                        listIndex++;
+                                    }
+                                }
                             }
-                        }
-
-                        var parentList = currentList.Parent as FlowDocument;
-                        if (parentList != null)
-                        {
-                            var index = parentList.Blocks.ToList().IndexOf(currentList);
-                            parentList.Blocks.Remove(currentList);
-
-                            foreach (var block in blocks)
+                            else
                             {
-                                parentList.Blocks.InsertBefore(parentList.Blocks.ElementAt(Math.Min(index, parentList.Blocks.Count - 1)), block);
+                                // Different marker style, just change the style
+                                currentList.MarkerStyle = markerStyle;
                             }
                         }
                     }
                     else
                     {
-                        // Create new list
+                        // Not in a list, create new list
                         var list = new List() { MarkerStyle = markerStyle };
-                        var listItem = new ListItem();
+                        var newListItem = new ListItem();
 
-                        // Move paragraph into list item
+                        // Create new paragraph with selection text
                         var paragraph = new Paragraph(new Run(selection.Text));
-                        listItem.Blocks.Add(paragraph);
-                        list.ListItems.Add(listItem);
+                        newListItem.Blocks.Add(paragraph);
+                        list.ListItems.Add(newListItem);
 
                         // Replace paragraph with list
                         var doc = ContentRichTextBox.Document;
