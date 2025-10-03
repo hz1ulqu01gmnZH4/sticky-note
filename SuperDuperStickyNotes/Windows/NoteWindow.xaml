@@ -1,0 +1,282 @@
+<Window x:Class="SuperDuperStickyNotes.Windows.NoteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Note"
+        Height="300"
+        Width="250"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="CanResizeWithGrip"
+        ShowInTaskbar="False"
+        Topmost="{Binding Pinned}"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+
+    <Border x:Name="MainBorder"
+            CornerRadius="5"
+            BorderThickness="1"
+            BorderBrush="#CCCCCC">
+        <Border.Effect>
+            <DropShadowEffect Color="Black"
+                              Direction="315"
+                              ShadowDepth="3"
+                              Opacity="0.3"
+                              BlurRadius="5"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" x:Name="HeaderBorder"
+                    CornerRadius="5,5,0,0"
+                    MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Title (first line of content) -->
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding Title}"
+                               VerticalAlignment="Center"
+                               Margin="10,0,0,0"
+                               FontWeight="Bold"
+                               TextTrimming="CharacterEllipsis"/>
+
+                    <!-- Pin Button -->
+                    <Button Grid.Column="1"
+                            x:Name="PinButton"
+                            Width="20" Height="20"
+                            Margin="2"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Click="PinButton_Click"
+                            ToolTip="Pin/Unpin">
+                        <TextBlock Text="📌" FontSize="12"/>
+                    </Button>
+
+                    <!-- Color Picker Button -->
+                    <Button Grid.Column="2"
+                            x:Name="ColorButton"
+                            Width="20" Height="20"
+                            Margin="2"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Click="ColorButton_Click"
+                            ToolTip="Change Color">
+                        <Ellipse Width="12" Height="12" Fill="{Binding Color}"/>
+                    </Button>
+
+                    <!-- Close Button -->
+                    <Button Grid.Column="3"
+                            x:Name="CloseButton"
+                            Width="20" Height="20"
+                            Margin="2"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Click="CloseButton_Click"
+                            ToolTip="Close">
+                        <TextBlock Text="✕" FontSize="12" FontWeight="Bold"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Formatting Toolbar -->
+            <Border Grid.Row="1" x:Name="ToolbarBorder"
+                    BorderThickness="0,1,0,1"
+                    BorderBrush="#EEEEEE"
+                    Background="#FAFAFA"
+                    Padding="5,2">
+                <StackPanel Orientation="Horizontal">
+                    <!-- Bold Button -->
+                    <Button x:Name="BoldButton"
+                            Width="24" Height="24"
+                            Margin="2,0"
+                            Background="Transparent"
+                            BorderThickness="1"
+                            BorderBrush="#CCCCCC"
+                            Click="BoldButton_Click"
+                            ToolTip="Bold (Ctrl+B)">
+                        <TextBlock Text="B" FontWeight="Bold" FontSize="12"/>
+                    </Button>
+
+                    <!-- Italic Button -->
+                    <Button x:Name="ItalicButton"
+                            Width="24" Height="24"
+                            Margin="2,0"
+                            Background="Transparent"
+                            BorderThickness="1"
+                            BorderBrush="#CCCCCC"
+                            Click="ItalicButton_Click"
+                            ToolTip="Italic (Ctrl+I)">
+                        <TextBlock Text="I" FontStyle="Italic" FontSize="12"/>
+                    </Button>
+
+                    <!-- Underline Button -->
+                    <Button x:Name="UnderlineButton"
+                            Width="24" Height="24"
+                            Margin="2,0"
+                            Background="Transparent"
+                            BorderThickness="1"
+                            BorderBrush="#CCCCCC"
+                            Click="UnderlineButton_Click"
+                            ToolTip="Underline (Ctrl+U)">
+                        <TextBlock Text="U" TextDecorations="Underline" FontSize="12"/>
+                    </Button>
+
+                    <!-- Separator -->
+                    <Border Width="1" Height="20" Background="#CCCCCC" Margin="5,0"/>
+
+                    <!-- Bullet List Button -->
+                    <Button x:Name="BulletListButton"
+                            Width="24" Height="24"
+                            Margin="2,0"
+                            Background="Transparent"
+                            BorderThickness="1"
+                            BorderBrush="#CCCCCC"
+                            Click="BulletListButton_Click"
+                            ToolTip="Bullet List">
+                        <TextBlock Text="•" FontSize="16" FontWeight="Bold"/>
+                    </Button>
+
+                    <!-- Numbered List Button -->
+                    <Button x:Name="NumberedListButton"
+                            Width="24" Height="24"
+                            Margin="2,0"
+                            Background="Transparent"
+                            BorderThickness="1"
+                            BorderBrush="#CCCCCC"
+                            Click="NumberedListButton_Click"
+                            ToolTip="Numbered List">
+                        <TextBlock Text="1." FontSize="11" FontWeight="Bold"/>
+                    </Button>
+
+                    <!-- Separator -->
+                    <Border Width="1" Height="20" Background="#CCCCCC" Margin="5,0"/>
+
+                    <!-- Font Size ComboBox -->
+                    <ComboBox x:Name="FontSizeComboBox"
+                              Width="55"
+                              Height="24"
+                              Margin="2,0"
+                              SelectionChanged="FontSizeComboBox_SelectionChanged"
+                              ToolTip="Font Size">
+                        <ComboBoxItem Content="10" Tag="10"/>
+                        <ComboBoxItem Content="11" Tag="11"/>
+                        <ComboBoxItem Content="12" Tag="12"/>
+                        <ComboBoxItem Content="13" Tag="13" IsSelected="True"/>
+                        <ComboBoxItem Content="14" Tag="14"/>
+                        <ComboBoxItem Content="16" Tag="16"/>
+                        <ComboBoxItem Content="18" Tag="18"/>
+                        <ComboBoxItem Content="20" Tag="20"/>
+                    </ComboBox>
+                </StackPanel>
+            </Border>
+
+            <!-- Content Area -->
+            <RichTextBox Grid.Row="2"
+                         x:Name="ContentRichTextBox"
+                         BorderThickness="0"
+                         Padding="10"
+                         VerticalScrollBarVisibility="Auto"
+                         TextChanged="ContentRichTextBox_TextChanged"
+                         FontFamily="Segoe UI"
+                         FontSize="13"
+                         AcceptsReturn="True"
+                         AcceptsTab="True"
+                         SpellCheck.IsEnabled="True">
+                <RichTextBox.Resources>
+                    <Style TargetType="{x:Type Paragraph}">
+                        <Setter Property="Margin" Value="0"/>
+                    </Style>
+                </RichTextBox.Resources>
+            </RichTextBox>
+
+            <!-- Tags Panel -->
+            <Border Grid.Row="3"
+                    x:Name="TagsPanel"
+                    BorderThickness="0,1,0,0"
+                    BorderBrush="#EEEEEE"
+                    Background="#FAFAFA"
+                    Padding="8,5"
+                    CornerRadius="0,0,5,5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Tags Label -->
+                    <TextBlock Grid.Column="0"
+                               Text="🏷️"
+                               VerticalAlignment="Center"
+                               Margin="0,0,5,0"
+                               FontSize="11"/>
+
+                    <!-- Tags Display -->
+                    <ItemsControl Grid.Column="1"
+                                  x:Name="TagsItemsControl"
+                                  ItemsSource="{Binding Tags}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#E0E0E0"
+                                        CornerRadius="3"
+                                        Padding="5,2"
+                                        Margin="2">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding}"
+                                                   FontSize="10"
+                                                   VerticalAlignment="Center"/>
+                                        <Button Content="✕"
+                                                FontSize="8"
+                                                Margin="3,0,0,0"
+                                                Padding="2,0"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Click="RemoveTag_Click"
+                                                Tag="{Binding}"
+                                                ToolTip="Remove tag"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Add Tag Button -->
+                    <Button Grid.Column="2"
+                            x:Name="AddTagButton"
+                            Content="+"
+                            Width="20" Height="20"
+                            FontSize="14"
+                            FontWeight="Bold"
+                            Background="#4CAF50"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Click="AddTagButton_Click"
+                            ToolTip="Add tag"/>
+                </Grid>
+            </Border>
+
+            <!-- Resize Grip -->
+            <ResizeGrip Grid.Row="3"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Visibility="Visible"/>
+        </Grid>
+    </Border>
+</Window>
