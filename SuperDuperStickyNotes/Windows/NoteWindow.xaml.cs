@@ -462,81 +462,132 @@ namespace SuperDuperStickyNotes.Windows
                 ContentRichTextBox.Focus();
 
             var selection = ContentRichTextBox.Selection;
-            if (selection != null)
+            if (selection == null)
+                return;
+
+            var startParagraph = selection.Start.Paragraph;
+            if (startParagraph == null)
+                return;
+
+            // Check if we're already in a list
+            var listItem = startParagraph.Parent as ListItem;
+            if (listItem != null)
             {
-                var startParagraph = selection.Start.Paragraph;
-
-                if (startParagraph != null)
+                var currentList = listItem.Parent as List;
+                if (currentList != null)
                 {
-                    // Check if we're already in a list
-                    var listItem = startParagraph.Parent as ListItem;
-                    if (listItem != null)
+                    // If same marker style, toggle off (remove list)
+                    if (currentList.MarkerStyle == markerStyle)
                     {
-                        var currentList = listItem.Parent as List;
-                        if (currentList != null)
+                        // Remove from list - convert back to paragraphs
+                        var doc = ContentRichTextBox.Document;
+                        var listIndex = doc.Blocks.ToList().IndexOf(currentList);
+
+                        // Create NEW paragraphs from list items (don't reuse existing ones)
+                        var newParagraphs = new System.Collections.Generic.List<Paragraph>();
+                        foreach (ListItem item in currentList.ListItems)
                         {
-                            // If same marker style, toggle off (remove list)
-                            if (currentList.MarkerStyle == markerStyle)
+                            foreach (Block block in item.Blocks)
                             {
-                                // Remove from list - convert back to paragraph
-                                var doc = ContentRichTextBox.Document;
-                                var listIndex = doc.Blocks.ToList().IndexOf(currentList);
-
-                                // Extract all paragraphs from list items
-                                var paragraphs = new System.Collections.Generic.List<Paragraph>();
-                                foreach (ListItem item in currentList.ListItems)
+                                if (block is Paragraph para)
                                 {
-                                    foreach (Block block in item.Blocks.ToList())
-                                    {
-                                        if (block is Paragraph para)
-                                        {
-                                            paragraphs.Add(para);
-                                        }
-                                    }
-                                }
+                                    // Create a NEW paragraph with the same content
+                                    var newPara = new Paragraph();
+                                    var textRange = new TextRange(para.ContentStart, para.ContentEnd);
+                                    var newTextRange = new TextRange(newPara.ContentEnd, newPara.ContentEnd);
 
-                                // Remove the list
-                                doc.Blocks.Remove(currentList);
-
-                                // Insert paragraphs at the same position
-                                if (listIndex >= 0 && listIndex <= doc.Blocks.Count)
-                                {
-                                    foreach (var para in paragraphs)
+                                    using (var stream = new MemoryStream())
                                     {
-                                        if (listIndex < doc.Blocks.Count)
-                                        {
-                                            doc.Blocks.InsertBefore(doc.Blocks.ElementAt(listIndex), para);
-                                        }
-                                        else
-                                        {
-                                            doc.Blocks.Add(para);
-                                        }
-                                        listIndex++;
+                                        textRange.Save(stream, DataFormats.XamlPackage);
+                                        stream.Seek(0, SeekOrigin.Begin);
+                                        newTextRange.Load(stream, DataFormats.XamlPackage);
                                     }
+
+                                    newParagraphs.Add(newPara);
                                 }
                             }
-                            else
+                        }
+
+                        // Remove the list
+                        doc.Blocks.Remove(currentList);
+
+                        // Insert new paragraphs at the same position
+                        if (listIndex >= 0 && newParagraphs.Count > 0)
+                        {
+                            foreach (var para in newParagraphs)
                             {
-                                // Different marker style, just change the style
-                                currentList.MarkerStyle = markerStyle;
+                                if (listIndex < doc.Blocks.Count)
+                                {
+                                    doc.Blocks.InsertBefore(doc.Blocks.ElementAt(listIndex), para);
+                                    listIndex++;
+                                }
+                                else
+                                {
+                                    doc.Blocks.Add(para);
+                                }
                             }
                         }
                     }
                     else
                     {
-                        // Not in a list, create new list
-                        var list = new List() { MarkerStyle = markerStyle };
-                        var newListItem = new ListItem();
+                        // Different marker style, just change the style
+                        currentList.MarkerStyle = markerStyle;
+                    }
+                }
+            }
+            else
+            {
+                // Not in a list, create new list from selection
+                var doc = ContentRichTextBox.Document;
+                var list = new List() { MarkerStyle = markerStyle };
 
-                        // Create new paragraph with selection text
-                        var paragraph = new Paragraph(new Run(selection.Text));
-                        newListItem.Blocks.Add(paragraph);
-                        list.ListItems.Add(newListItem);
+                // Get text from selection
+                var selectedText = selection.Text;
 
-                        // Replace paragraph with list
-                        var doc = ContentRichTextBox.Document;
+                // Split by newlines to preserve multiple lines
+                var lines = selectedText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (lines.Length > 0)
+                {
+                    // Create a list item for each line
+                    foreach (var line in lines)
+                    {
+                        if (!string.IsNullOrWhiteSpace(line))
+                        {
+                            var newListItem = new ListItem();
+                            var paragraph = new Paragraph(new Run(line.Trim()));
+                            newListItem.Blocks.Add(paragraph);
+                            list.ListItems.Add(newListItem);
+                        }
+                    }
+
+                    // If we created any list items, insert the list
+                    if (list.ListItems.Count > 0)
+                    {
+                        // Find the paragraph to replace
+                        var endParagraph = selection.End.Paragraph;
+
+                        // Get all paragraphs in selection
+                        var paragraphsToRemove = new System.Collections.Generic.List<Paragraph>();
+                        var currentPara = startParagraph;
+                        while (currentPara != null)
+                        {
+                            paragraphsToRemove.Add(currentPara);
+                            if (currentPara == endParagraph)
+                                break;
+
+                            var nextBlock = doc.Blocks.ElementAtOrDefault(doc.Blocks.ToList().IndexOf(currentPara) + 1);
+                            currentPara = nextBlock as Paragraph;
+                        }
+
+                        // Insert list before first paragraph
                         doc.Blocks.InsertBefore(startParagraph, list);
-                        doc.Blocks.Remove(startParagraph);
+
+                        // Remove all selected paragraphs
+                        foreach (var para in paragraphsToRemove)
+                        {
+                            doc.Blocks.Remove(para);
+                        }
                     }
                 }
             }
