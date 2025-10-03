@@ -92,9 +92,20 @@ This document tracks the implementation status of the Super Duper Sticky Notes C
 - [x] Export/Import tab ✅
 - [x] About tab ✅
 - [x] Accessible from system tray menu ✅
-- [ ] Actual settings persistence (currently placeholder)
-- [ ] Backup settings (schedule, retention)
+- [x] **Settings persistence (save/load from JSON)** ✅
+- [x] **AppSettings model with all user preferences** ✅
+- [x] **SettingsService for load/save operations** ✅
+- [x] **Backup settings (schedule, retention)** ✅
 - [ ] API settings (optional)
+
+#### Automatic Backups
+- [x] **BackupService with timer-based backups** ✅
+- [x] **Compressed backups (.db.gz format)** ✅
+- [x] **Configurable backup interval (hours)** ✅
+- [x] **Automatic cleanup of old backups** ✅
+- [x] **Backup retention policy (days)** ✅
+- [x] **Backup on application startup** ✅
+- [x] **Configurable backup directory** ✅
 
 #### Export/Import (FEATURES.md:285, OPERATIONS.md:261-367)
 - [x] Export to JSON ✅
@@ -325,8 +336,8 @@ This document tracks the implementation status of the Super Duper Sticky Notes C
 - Database persistence
 - FTS search
 
-### v1.1 - Essential Features (In Progress)
-**Target**: Q2 2025
+### v1.1 - Essential Features ✅ COMPLETE
+**Status**: ✅ 100% Complete
 - [x] **RichTextBox with spell check** ✅
 - [x] **Settings dialog** ✅
 - [x] **Export/Import (JSON, Markdown, CSV)** ✅
@@ -335,9 +346,8 @@ This document tracks the implementation status of the Super Duper Sticky Notes C
 - [x] **Unit tests (15 tests, all passing)** ✅
 - [x] **Rich text formatting toolbar (Bold, Italic, Underline, Lists, Font Size)** ✅
 - [x] **Tags UI implementation (Add/Remove tags, visual chips)** ✅
-- [ ] Note templates
-- [ ] Automatic backups
-- [ ] Settings persistence
+- [x] **Settings persistence (AppSettings, SettingsService)** ✅
+- [x] **Automatic backups (BackupService with timer)** ✅
 
 ### v1.2 - Organization (Q3 2025)
 - [ ] Workspaces
@@ -440,11 +450,17 @@ This document tracks the implementation status of the Super Duper Sticky Notes C
 
 ---
 
-**Last Updated**: 2025-10-02
-**Version**: 1.1.0 (In Progress)
-**Status**: Priority 1 features ~85% complete, all tests passing ✅
+**Last Updated**: 2025-10-03
+**Version**: 1.1.0 ✅ COMPLETE
+**Status**: All Priority 1 features 100% complete, all tests passing ✅
 **Test Coverage**: 15 unit tests (8 model tests, 7 database tests)
-**Recent Additions**:
-- Rich text formatting toolbar with keyboard shortcuts (Ctrl+B/I/U)
-- Complete tags UI with visual chips and input dialog
-- Database migration for tags column support
+
+**Recent Additions (v1.1.0 Final)**:
+- ✅ Rich text formatting toolbar with keyboard shortcuts (Ctrl+B/I/U)
+- ✅ Complete tags UI with visual chips and input dialog
+- ✅ Database migration for tags column support
+- ✅ **Settings persistence** (AppSettings model, SettingsService)
+- ✅ **Automatic database backups** (BackupService with compression)
+- ✅ User preferences saved to JSON (settings.json)
+- ✅ Configurable backup interval and retention policy
+- ✅ Background backup timer with automatic cleanup

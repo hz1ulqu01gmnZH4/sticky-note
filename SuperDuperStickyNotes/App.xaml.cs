@@ -14,13 +14,26 @@ namespace SuperDuperStickyNotes
         private DatabaseContext? _database;
         private NoteManager? _noteManager;
         private CommandPaletteWindow? _commandPalette;
+        private SettingsService? _settingsService;
+        private BackupService? _backupService;
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
+            // Initialize settings service
+            _settingsService = new SettingsService();
+
             // Initialize database
             _database = new DatabaseContext();
+
+            // Initialize backup service
+            var dbPath = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "SuperDuperStickyNotes",
+                "notes.db"
+            );
+            _backupService = new BackupService(_settingsService, dbPath);
 
             // Initialize note manager
             _noteManager = new NoteManager(_database);
@@ -101,9 +114,9 @@ namespace SuperDuperStickyNotes
 
         private void OnSettingsRequested()
         {
-            if (_database != null)
+            if (_database != null && _settingsService != null)
             {
-                var settingsWindow = new SettingsWindow(_database);
+                var settingsWindow = new SettingsWindow(_database, _settingsService);
                 settingsWindow.ShowDialog();
             }
         }
@@ -117,6 +130,7 @@ namespace SuperDuperStickyNotes
         {
             _hotkeyManager?.Dispose();
             _trayManager?.Dispose();
+            _backupService?.Dispose();
             _database?.Dispose();
             _noteManager?.Dispose();
 
