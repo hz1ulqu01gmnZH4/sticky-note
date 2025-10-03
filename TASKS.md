@@ -469,3 +469,6 @@ This document tracks the implementation status of the Super Duper Sticky Notes C
 - ✅ Fixed null reference exception when double-clicking tray icon or using command palette
   - Added null checks to all ContentRichTextBox access methods
   - Prevents crash when window shown before fully loaded
+- ✅ Fixed InvalidOperationException when switching between bullet and numbered lists
+  - Improved list conversion logic to change MarkerStyle instead of recreating lists
+  - Now properly converts between list types without errors
