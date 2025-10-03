@@ -511,19 +511,20 @@ namespace SuperDuperStickyNotes.Windows
                         // Remove the list
                         doc.Blocks.Remove(currentList);
 
-                        // Insert new paragraphs at the same position
+                        // Insert new paragraphs at the same position (maintain order)
                         if (listIndex >= 0 && newParagraphs.Count > 0)
                         {
-                            foreach (var para in newParagraphs)
+                            // Insert in reverse order to maintain original order
+                            // because InsertBefore at the same position reverses the order
+                            for (int i = newParagraphs.Count - 1; i >= 0; i--)
                             {
                                 if (listIndex < doc.Blocks.Count)
                                 {
-                                    doc.Blocks.InsertBefore(doc.Blocks.ElementAt(listIndex), para);
-                                    listIndex++;
+                                    doc.Blocks.InsertBefore(doc.Blocks.ElementAt(listIndex), newParagraphs[i]);
                                 }
                                 else
                                 {
-                                    doc.Blocks.Add(para);
+                                    doc.Blocks.Add(newParagraphs[i]);
                                 }
                             }
                         }
